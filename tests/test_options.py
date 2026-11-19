@@ -1180,6 +1180,43 @@ def test_missing_envvar(runner):
     assert "Error: Missing option '--foo'." in result.output
 
 
+def test_missing_auto_envvar(runner):
+    cli = click.Command(
+        "cli", params=[click.Option(["--foo"], show_envvar=True, required=True)]
+    )
+    result = runner.invoke(cli, auto_envvar_prefix="TEST")
+    assert result.exit_code == 2
+    assert "Error: Missing option '--foo' (env var: 'TEST_FOO')." in result.output
+
+    cli_no_auto = click.Command(
+        "cli",
+        params=[
+            click.Option(
+                ["--foo"],
+                show_envvar=True,
+                required=True,
+                allow_from_autoenv=False,
+            )
+        ],
+    )
+    result_no_auto = runner.invoke(cli_no_auto, auto_envvar_prefix="TEST")
+    assert result_no_auto.exit_code == 2
+    assert "Error: Missing option '--foo'." in result_no_auto.output
+
+    @click.group()
+    def group():
+        pass
+
+    @group.command()
+    @click.option("--port", type=int, required=True, show_envvar=True)
+    def run(port):
+        pass
+
+    result_group = runner.invoke(group, ["run"], auto_envvar_prefix="APP")
+    assert result_group.exit_code == 2
+    assert "Error: Missing option '--port' (env var: 'APP_RUN_PORT')." in result_group.output
+
+
 @pytest.mark.parametrize(
     ("envvar", "expected"),
     [
