@@ -2,6 +2,9 @@
 
 Unreleased
 
+- {meth}`Option.get_error_hint` includes the resolved environment variable when
+  {attr}`~Option.show_envvar` is enabled and {attr}`Context.auto_envvar_prefix` is
+  set. {issue}`3914`
 - Drop support for Python 3.10. {pr}`3920` {pr}`3921`
 - A parameter name that is not a valid Python identifier, or that is a Python
   keyword, is deprecated and raises `TypeError` in Click 9.0. {pr}`3866`
